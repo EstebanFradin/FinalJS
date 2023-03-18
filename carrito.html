@@ -37,30 +37,41 @@
         </nav>
     </header>
 
-    <h1>Productos</h1>
+    <div class="container">
+		<h1 class="text-center my-5">Carrito de compras</h1>
+		<div class="row">
+			<div class="col-lg-8">
+				<div id="lista-productos" class="row">
+					<!--Aquí se imprimirán los productos-->
+				</div>
+			</div>
+			<div class="col-lg-4">
+				<div id="carrito">
+					<table class="table">
+						<thead>
+							<tr>
+								<th>Producto</th>
+								<th>Precio</th>
+								<th>Cantidad</th>
+								<th>Total</th>
+								<th>Eliminar</th>
+							</tr>
+						</thead>
+						<tbody>
+							<!--Aquí se imprimirá el carrito-->
+						</tbody>
+					</table>
+					<div class="text-right">
+						<p><strong>Subtotal:</strong> <span id="subtotal"></span></p>
+						<p><strong>IVA:</strong> <span id="iva"></span></p>
+						<p><strong>Total:</strong> <span id="total"></span></p>
+						<button id="vaciar-carrito" type="button" class="btn btn-danger">Vaciar carrito</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
 
-    <ul id="productos"></ul>
-
-    <h2>Carrito</h2>
-
-    <table id="cart" style="border:1px solid">
-        <thead>
-            <tr style="border:1px solid">
-                <th style="border:1px solid">Producto</th>
-                <th style="border:1px solid">Cantidad</th>
-                <th style="border:1px solid">Precio unitario</th>
-                <th style="border:1px solid">Total</th>
-            </tr>
-        </thead>
-        <tbody style="border:1px solid">
-        </tbody>
-        <tfoot>
-            <tr>
-                <td colspan="3" style="border:1px solid">Total:</td>
-                <td id="total">0</td>
-            </tr>
-        </tfoot>
-    </table>
     
 
     <footer class="footer-details">

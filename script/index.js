@@ -1,122 +1,118 @@
 
-// ********************************** VARIABLES ************************************** //
+// Obtener referencias a los elementos del DOM
+const lista = document.getElementById("lista-productos");
+const carrito = document.getElementById("carrito");
+const subtotal = document.getElementById("subtotal");
+const iva = document.getElementById("iva");
+const total = document.getElementById("total");
+let contadorBotones = 0;
 
-let cart = [];
-let total = 0;
-const cartTable = document.querySelector('#cart tbody');
-const totalCell = document.querySelector('#total');
-const checkoutBtn = document.querySelector('#checkout');
+// Definir variables globales
+let carritoProductos = [];
+const IVA = 0.21;
 
-// ********************************** FUNCIONES ************************************** //
+// Función para imprimir los productos en la página
+function imprimirProductos(productos) {
+  productos.forEach((el) => {
+    lista.innerHTML += `
+      <div class="cajas">
+        <div class="center-img-api">
+          <img src="${el.images[0]}" class="images-api">
+        </div>
+        <hr>
+        <h4 class="center-text-api">${el.title}</h4>
+        <p class="center-text-api">${el.price}$</p>
+        <div class="btn-group" role="group" aria-label="Basic mixed styles example">
+          <button id="agregar${el.title}${el.id}" type="button" class="btn btn-dark"> Agregar </button>
+        </div>
+      </div>`;
+    let boton = document.getElementById(`agregar${el.title}-${el.id}`);
+    boton.addEventListener("click", () => agregarAlCarrito(el));
+  });
+}
 
-function addToCart(producto, cantidad, precio) {
-    const item = {
-      producto,
-      cantidad,
-      precio,
-      total: cantidad * precio,
-    };
-    
-    cart.push(item);
-    
-    updateCartTable();
-    saveCart();
-  }
-
-  function updateCartTable() {
-    const table = document.querySelector('#cart tbody');
-    table.innerHTML = '';
-    
-    cart.forEach((item, index) => {
-      const row = table.insertRow();
-      
-      const productoCell = row.insertCell();
-      productoCell.textContent = item.producto;
-      
-      const cantidadCell = row.insertCell();
-      cantidadCell.textContent = item.cantidad;
-      
-      const precioCell = row.insertCell();
-      precioCell.textContent = item.precio;
-      
-      const totalCell = row.insertCell();
-      totalCell.textContent = item.total;
-      
-      const removeBtn = document.createElement('button');
-      removeBtn.textContent = 'Eliminar';
-      removeBtn.classList.add('btn', 'btn-dark');
-      
-      removeBtn.addEventListener('click', () => {
-        removeItem(index);
-      });
-      
-      const removeCell = row.insertCell();
-      removeCell.appendChild(removeBtn);
-    });
-    
-    const total = cart.reduce((acc, item) => acc + item.total, 0);
-    document.querySelector('#cart tfoot td:last-child').textContent = total;
-  }
-
-  function updateTotal() {
-    total = cart.reduce((acc, item) => acc + item.total, 0);
-    totalCell.textContent = total;
-  }
-
-
-  const productos = [
-    { nombre: 'Camisa', precio: 500 },
-    { nombre: 'Pantalón', precio: 800 },
-    { nombre: 'Zapatos', precio: 1200 },
-  ];
-
-  function mostrarProductos() {
-    const productosList = document.querySelector('#productos');
-    
-    productos.forEach(producto => {
-      const item = document.createElement('li');
-      item.textContent = `${producto.nombre}: $${producto.precio}`;
-      
-      const addBtn = document.createElement('button');
-      addBtn.textContent = 'Agregar al carrito';
-      addBtn.classList.add('btn', 'btn-dark');
-      
-      addBtn.addEventListener('click', () => {
-        addToCart(producto.nombre, 1, producto.precio);
-      });
-      
-      item.appendChild(addBtn);
-      
-      productosList.appendChild(item);
-    });
-  }
-
-  function saveCart() {
-    localStorage.setItem('cart', JSON.stringify(cart));
-  }
-
-  function loadCart() {
-    const savedCart = localStorage.getItem('cart');
-    
-    if (savedCart) {
-      cart = JSON.parse(savedCart);
-      updateCartTable();
+// Función para agregar un producto al carrito
+function agregarAlCarrito(producto) {
+  let existe = false;
+  for (let i = 0; i < carritoProductos.length; i++) {
+    if (carritoProductos[i].id === producto.id) {
+      carritoProductos[i].cantidad++;
+      existe = true;
+      break;
     }
   }
-
-  window.addEventListener('load', () => {
-    loadCart();
-  });
-
-  function removeItem(index) {
-    cart.splice(index, 1);
-    updateCartTable();
-    saveCart();
+  if (!existe) {
+    carritoProductos.push({ ...producto, cantidad: 1 });
   }
+  imprimirTabla();
+  guardarCarritoEnStorage();
+}
 
+// Función para imprimir el carrito en la página
+function imprimirTabla() {
+  carrito.innerHTML = "";
+  let subtotalPrecio = 0;
+  carritoProductos.forEach((el) => {
+    carrito.innerHTML += `
+      <tr>
+        <td>${el.title}</td>
+        <td>${el.price}$</td>
+        <td>${el.cantidad}</td>
+        <td>${el.price * el.cantidad}$</td>
+        <td>
+          <button id="eliminar${el.title}${el.id}" type="button" class="btn btn-danger btn-sm"> Eliminar </button>
+        </td>
+      </tr>`;
+    let boton = document.getElementById(`eliminar${el.title}${el.id}`);
+    boton.addEventListener("click", () => eliminarDelCarrito(el));
+    subtotalPrecio += el.price * el.cantidad;
+  });
+  subtotal.innerHTML = `$${subtotalPrecio}`;
+  iva.innerHTML = `$${(subtotalPrecio * IVA).toFixed(2)}`;
+  total.innerHTML = `$${(subtotalPrecio * (1 + IVA)).toFixed(2)}`;
+}
 
-  // ********************************** LLAMADO DE FUNCION ************************************** //
-  mostrarProductos();
+// Función para eliminar un producto del carrito
+function eliminarDelCarrito(producto) {
+  for (let i = 0; i < carritoProductos.length; i++) {
+    if (carritoProductos[i].id === producto.id) {
+      carritoProductos.splice(i, 1);
+      break;
+    }
+  }
+  imprimirTabla();
+  guardarCarritoEnStorage();
+}
+
+// Función para guardar el carrito en el storage del navegador
+function guardarCarritoEnStorage() {
+  localStorage.setItem("carrito", JSON.stringify(carritoProductos));
+}
+
+fetch('https://dummyjson.com/products')
+    .then((data) => {
+      return data.json();
+    })
+    .then((res) => {
+      res.products.forEach((el) => {
+
+        lista.innerHTML += `
+              <div class="cajas">
+                <div class="center-img-api">
+                  <img src="${el.images[0]}" class="images-api">
+                </div>
+                <hr>
+                <h4 class="center-text-api">${el.title}</h4>
+                <p class="center-text-api">${el.price}$</p>
+                <div class="btn-group" role="group" aria-label="Basic mixed styles example">
+                    <button id="agregar${el.title}${el.id}" type="button" class="btn btn-dark"> Agregar </button>
+                </div>
+              </div>`;
+        let boton = document.getElementById(`agregar${el.title}${el.id}`);
+        boton.addEventListener("click", () => agregarAlCarrito(el));
+      });
+      
+    });
 
 
 
