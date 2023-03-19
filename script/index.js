@@ -26,22 +26,17 @@ function imprimirProductos(productos) {
           <button id="agregar${el.title}${el.id}" type="button" class="btn btn-dark"> Agregar </button>
         </div>
       </div>`;
-    let boton = document.getElementById(`agregar${el.title}-${el.id}`);
+    let boton = document.getElementById(`agregar${el.title}${el.id}`);
     boton.addEventListener("click", () => agregarAlCarrito(el));
   });
 }
 
 // Función para agregar un producto al carrito
 function agregarAlCarrito(producto) {
-  let existe = false;
-  for (let i = 0; i < carritoProductos.length; i++) {
-    if (carritoProductos[i].id === producto.id) {
-      carritoProductos[i].cantidad++;
-      existe = true;
-      break;
-    }
-  }
-  if (!existe) {
+  let productoExistente = carritoProductos.find((el) => el.id === producto.id);
+  if (productoExistente) {
+    productoExistente.cantidad++;
+  } else {
     carritoProductos.push({ ...producto, cantidad: 1 });
   }
   imprimirTabla();
@@ -50,8 +45,8 @@ function agregarAlCarrito(producto) {
 
 // Función para imprimir el carrito en la página
 function imprimirTabla() {
-  carrito.innerHTML = "";
   let subtotalPrecio = 0;
+  carrito.innerHTML = ""; // mover esta línea al principio de la función
   carritoProductos.forEach((el) => {
     carrito.innerHTML += `
       <tr>
@@ -71,6 +66,7 @@ function imprimirTabla() {
   iva.innerHTML = `$${(subtotalPrecio * IVA).toFixed(2)}`;
   total.innerHTML = `$${(subtotalPrecio * (1 + IVA)).toFixed(2)}`;
 }
+
 
 // Función para eliminar un producto del carrito
 function eliminarDelCarrito(producto) {
